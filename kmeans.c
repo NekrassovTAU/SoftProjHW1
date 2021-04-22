@@ -17,56 +17,51 @@ void kMeans(int k, char *filename, int max_iter);
 
 int main(int argc, char *argv[]) {
     /* Validating command-line inputs */
-    int k, max_iter, i, d;
+    int k, max_iter, i, d, size, tail;
     char firstRow[ BUFFER_SIZE ];
-    ASSERT(argc > 1 , "Not enough arguments");
+    char *token;
+    float *array;
+
+    ASSERT(argc > 1 , "Not enough arguments")
 
     k = atoi(argv[1]);
     max_iter = atoi(argv[2]);
     max_iter = MAX_ITER(max_iter);
 
-    printf("k is: %d\n", k);
-    printf("max_iter is: %d\n", max_iter);
-
-
-    ASSERT(max_iter > 0 , "max_iter input needs to be positive\n");
-    ASSERT(k > 0 , "k input needs to be positive\n");
+    ASSERT(max_iter > 0 , "max_iter input needs to be positive\n")
+    ASSERT(k > 0 , "k input needs to be positive\n")
 
     /* Finding d based on first row - by number of commas + 1. */
     fgets(firstRow, BUFFER_SIZE, stdin);
     for (i=0, d=1; firstRow[i]; i++){
         d += (firstRow[i] == ',');
     }
-    printf("d is: %d\n", d);
+    size = 100, tail = 0;
 
-    //
-    int size = 100, tail = 0;
-    char *token;
+    array = (float*) calloc(d * size, sizeof (float));
 
-    float *array = (float*) calloc(d * size, sizeof (float));
-
-    while(! strcmp(firstRow, (const char *) EOF)){  // as long as there are still lines to be read
-       //loop to read line
-       token = strtok(firstRow, ","); // read the current line
+    do{/* as long as there are still lines to be read */
+       /*loop to read line */
+       token = strtok(firstRow, ","); /* read the current line */
        while(token != NULL) {
            array[tail] = (float) atof(token);
            token = strtok(NULL, ",");
-           tail ++;
+           tail++;
+
+           /*in-case we reached the edge of the current array, increase the size by twice */
+           if (tail == d * size){
+               size *= 2;
+               array = realloc(array, d * size * sizeof(float));
+               ASSERT(array != NULL, "Error in memory allocation")
+           }
        }
+    } while(fgets(firstRow, BUFFER_SIZE, stdin));
 
-        if (tail == size){ //case we reached the edge of the current array, increase the size by twice
-            size *= 2;
-            array = realloc(array, d * size * sizeof(float));
-        }
-
-        fgets(firstRow, BUFFER_SIZE, stdin);
+    /* cut the array to its intended size */
+    if(tail < d * size - 1)  {
+        array = realloc(array, tail * sizeof(float));
+        ASSERT(array != NULL, "Error in memory allocation")
     }
-
-    if(tail < size && ((size - tail) % (d * sizeof(float)) == 0))  {
-        array = realloc(array, d * tail * sizeof(float));
-    }
-
-        // enter the first row into the array, and the other first n points as well.
 
 
     /* Calculations */
