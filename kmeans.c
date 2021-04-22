@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define MAX_ITER(x) (((x) > (200)) ? (200) : (x))
 #define BUFFER_SIZE 200
@@ -38,13 +39,39 @@ int main(int argc, char *argv[]) {
     }
     printf("d is: %d\n", d);
 
-    /* Allocating all needed space for computations - and reallocating if needed */
+    //
+    int size = 100, tail = 0;
+    char *token;
 
+    float *array = (float*) calloc(d * size, sizeof (float));
+
+    while(! strcmp(firstRow, (const char *) EOF)){  // as long as there are still lines to be read
+       //loop to read line
+       token = strtok(firstRow, ","); // read the current line
+       while(token != NULL) {
+           array[tail] = (float) atof(token);
+           token = strtok(NULL, ",");
+           tail ++;
+       }
+
+        if (tail == size){ //case we reached the edge of the current array, increase the size by twice
+            size *= 2;
+            array = realloc(array, d * size * sizeof(float));
+        }
+
+        fgets(firstRow, BUFFER_SIZE, stdin);
+    }
+
+    if(tail < size && ((size - tail) % (d * sizeof(float)) == 0))  {
+        array = realloc(array, d * tail * sizeof(float));
+    }
+
+        // enter the first row into the array, and the other first n points as well.
 
 
     /* Calculations */
     /* Output & Free space */
-    return 0;
+   return 0;
 }
 
 
