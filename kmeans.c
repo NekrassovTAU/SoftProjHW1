@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #define MAX_ITER(x) = (min((x),(200))
+#define BUFFER_SIZE = 200
 
 #define ASSERT(expr, message) \
     if (!(expr)){             \
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
     /* Allocating all needed space for computations - and reallocating if needed */
 
     /* Finding d based on first row - by number of commas + 1. */
-    firstRow = sscanf("%s", (const char *) stdin);
+    firstRow = fgets(BUFFER_SIZE)
     for (i=0, d=1; firstRow[i]; i++){
         d += (firstRow[i] == ',');
     }
