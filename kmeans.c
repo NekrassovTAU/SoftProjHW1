@@ -17,9 +17,11 @@
 
 void kMeans(int k, char *filename, int max_iter);
 
-int initializeArray(int arraySize, float **array, char currRow[], int d);
+int initializeDatapointArray(int arraySize, float **datap_array, char *currRow, int d);
 
 void updateCentroidsPerDatap(float ***datapoint, float ***centroid, int **datap_cluster_assignment, int d , int k, int size);
+
+void initializeRestOfArrays(float **datap_array, float **centr_array, float ***datapoint, float ***centroid, int **datap_cluster_assignment, int d , int k, int size);
 
 int main(int argc, char *argv[]) {
     /* Validating command-line inputs */
@@ -51,43 +53,19 @@ int main(int argc, char *argv[]) {
         d += (firstRow[i] == ',');
     }
 
-    /*Setting up the datapoint array */
+    /*Setting up the datapoint array, and rest of arrays */
     arraySize = INITIAL_ARRAY_SIZE;
 
     datap_array = (float*) calloc(d * arraySize, sizeof (float));
     ASSERT(datap_array != NULL, "Error in memory allocation")
 
-    arraySize = initializeArray(arraySize, &datap_array, firstRow, d);
+    arraySize = initializeDatapointArray(arraySize, &datap_array, firstRow, d);
 
-    /*making datapoint a 2D array and initializing datap_cluster_assignment*/
-    datapoint = calloc(arraySize, sizeof(int*));
-    ASSERT(datapoint != NULL, "Error in memory allocation")
-    datap_cluster_assignment = calloc(arraySize, sizeof(int));
-    ASSERT(datap_cluster_assignment != NULL, "Error in memory allocation")
-    for (i = 0; i < arraySize ; i++){
-        datapoint[i] = datap_array + i*d;
-        datap_cluster_assignment[i] = 0;
-    }
-
-    /* creating initial centroid */
-    centr_array = (float *) malloc(k * d * sizeof(float ));
-    ASSERT(centr_array != NULL, "Error in memory allocation")
-    for (i = 0; i < k*d; i++){
-        centr_array[i] = datap_array[i];
-    }
-
-    /*making centroid a 2D array*/
-    centroid = (float **) calloc(k, sizeof(int*));
-    ASSERT(centroid != NULL, "Error in memory allocation")
-    for (i = 0; i < k ; i++){
-        centroid[i] = centr_array + i * d;
-    }
+    initializeRestOfArrays(&datap_array, &centr_array, &datapoint, &centroid, &datap_cluster_assignment, d, k, arraySize);
 
     /* Calculations */
 
     updateCentroidsPerDatap(&datapoint, &centroid, &datap_cluster_assignment, d, k, arraySize);
-
-
 
     /* Output & Free space */
 
@@ -125,7 +103,7 @@ void kMeans(int k, char *filename, int max_iter) {
     }*/
 }
 
-int initializeArray(int arraySize, float **array, char currRow[], int d) {
+int initializeDatapointArray(int arraySize, float **datap_array, char *currRow, int d) {
     char *token;
     int tail = 0;
 
@@ -133,27 +111,56 @@ int initializeArray(int arraySize, float **array, char currRow[], int d) {
         /*loop to read line */
         token = strtok(currRow, ","); /* read the current line */
         while(token != NULL) {
-            (*array)[tail] = (float) atof(token);
+            (*datap_array)[tail] = (float) atof(token);
             token = strtok(NULL, ",");
             tail++;
 
             /*in-case we reached the edge of the current datap_array, increase the arraySize by twice */
             if (tail == d * arraySize){
                 arraySize *= 2;
-                *array = realloc(*array, d * arraySize * sizeof(float));
-                ASSERT(*array != NULL, "Error in memory allocation")
+                *datap_array = realloc(*datap_array, d * arraySize * sizeof(float));
+                ASSERT(*datap_array != NULL, "Error in memory allocation")
             }
         }
     } while(fgets(currRow, BUFFER_SIZE, stdin));
 
     /* cut the datap_array to its intended arraySize */
     if(tail < d * arraySize - 1)  {
-        *array = realloc(*array, tail * sizeof(float));
-        ASSERT(*array != NULL, "Error in memory allocation")
+        *datap_array = realloc(*datap_array, tail * sizeof(float));
+        ASSERT(*datap_array != NULL, "Error in memory allocation")
         arraySize = tail / d;
     }
 
+    free(token);
     return arraySize;
+}
+
+void initializeRestOfArrays(float **datap_array, float **centr_array, float ***datapoint, float ***centroid, int **datap_cluster_assignment, int d , int k, int size){
+    int i;
+
+    /*making datapoint a 2D array and initializing datap_cluster_assignment*/
+    *datapoint = calloc(size, sizeof(int*));
+    ASSERT((*datapoint) != NULL, "Error in memory allocation")
+    *datap_cluster_assignment = calloc(size, sizeof(int));
+    ASSERT((*datap_cluster_assignment) != NULL, "Error in memory allocation")
+    for (i = 0; i < size ; i++){
+        (*datapoint)[i] = (*datap_array) + i*d;
+        (*datap_cluster_assignment)[i] = 0;
+    }
+
+    /* creating initial centroid */
+    *centr_array = (float *) malloc(k * d * sizeof(float ));
+    ASSERT((*centr_array) != NULL, "Error in memory allocation")
+    for (i = 0; i < k*d; i++){
+        (*centr_array)[i] = (*datap_array)[i];
+    }
+
+    /*making centroid a 2D array*/
+    (*centroid) = (float **) calloc(k, sizeof(int*));
+    ASSERT((*centroid) != NULL, "Error in memory allocation")
+    for (i = 0; i < k ; i++){
+        (*centroid)[i] = (*centr_array) + i * d;
+    }
 }
 
 void updateCentroidsPerDatap(float ***datapoint, float ***centroid, int **datap_cluster_assignment, int d, int k, int size){
