@@ -65,6 +65,8 @@ int main(int argc, char *argv[]) {
 
     arraySize = initializeDatapointArray(arraySize, &datap_array, firstRow, d);
 
+    ASSERT(k <= arraySize, "Provided K is too large")
+
     initializeRestOfArrays(&datap_array, &centr_array, &datapoint, &centroid, &datap_cluster_assignment, d, k, arraySize, &sumArray, &sumArrayHead, &countArray);
 
     /* Calculations */
