@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     /* This line helps with printf buffering, since it can be junky sometimes */
     setvbuf (stdout, NULL, _IONBF, 0);
 
-    ASSERT(argc > 0 , "Not enough arguments")
+    ASSERT(argc > 1 , "Not enough arguments")
 
     k = atoi(argv[1]);
     max_iter = 200;
