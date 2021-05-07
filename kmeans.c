@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
     arraySize = INITIAL_ARRAY_SIZE;
 
     datap_array = (double*) calloc(d * arraySize, sizeof (double));
-    ASSERT(datap_array != NULL, "Error in memory allocation 0")
+    ASSERT(datap_array != NULL, "Error in memory allocation\n")
 
     arraySize = initializeDatapointArray(arraySize, &datap_array, firstRow, d);
 
@@ -110,7 +110,7 @@ int initializeDatapointArray(int arraySize, double **datap_array, char *currRow,
             if (tail == d * arraySize){
                 arraySize *= 2;
                 *datap_array = realloc(*datap_array, d * arraySize * sizeof(double));
-                ASSERT(*datap_array != NULL, "Error in memory allocation 1")
+                ASSERT(*datap_array != NULL, "Error in memory allocation\n")
             }
         }
     } while(fgets(currRow, BUFFER_SIZE, stdin));
@@ -118,7 +118,7 @@ int initializeDatapointArray(int arraySize, double **datap_array, char *currRow,
     /* cut the datap_array to its intended arraySize */
     if(tail < d * arraySize - 1)  {
         *datap_array = realloc(*datap_array, tail * sizeof(double));
-        ASSERT(*datap_array != NULL, "Error in memory allocation 2")
+        ASSERT(*datap_array != NULL, "Error in memory allocation\n")
         arraySize = tail / d;
     }
 
@@ -131,9 +131,9 @@ void initializeRestOfArrays(double **datap_array, double **centr_array, double *
 
     /*making datapoint a 2D array and initializing datap_cluster_assignment*/
     *datapoint = calloc(size, sizeof(double*));
-    ASSERT((*datapoint) != NULL, "Error in memory allocation 3")
+    ASSERT((*datapoint) != NULL, "Error in memory allocation\n")
     *datap_cluster_assignment = calloc(size, sizeof(int));
-    ASSERT((*datap_cluster_assignment) != NULL, "Error in memory allocation 4")
+    ASSERT((*datap_cluster_assignment) != NULL, "Error in memory allocation\n")
     for (i = 0; i < size ; i++){
         (*datapoint)[i] = (*datap_array) + i*d;
         (*datap_cluster_assignment)[i] = 0;
@@ -141,28 +141,28 @@ void initializeRestOfArrays(double **datap_array, double **centr_array, double *
 
     /* creating initial centroid */
     *centr_array = malloc(k * d * sizeof(double));
-    ASSERT((*centr_array) != NULL, "Error in memory allocation 5")
+    ASSERT((*centr_array) != NULL, "Error in memory allocation\n")
     for (i = 0; i < k*d; i++){
         (*centr_array)[i] = (*datap_array)[i];
     }
 
     /*making centroid a 2D array*/
     (*centroid) = calloc(k, sizeof(double*));
-    ASSERT((*centroid) != NULL, "Error in memory allocation 6")
+    ASSERT((*centroid) != NULL, "Error in memory allocation\n")
     for (i = 0; i < k ; i++){
         (*centroid)[i] = (*centr_array) + i * d;
     }
 
     /* initialization of the sum arrays */
     (*sumArray) = calloc(d * k, sizeof(double));
-    ASSERT((*sumArray) != NULL, "Error in memory allocation 7")
+    ASSERT((*sumArray) != NULL, "Error in memory allocation\n")
     (*sumArrayHead) = calloc(k, sizeof(double*));
-    ASSERT((*sumArrayHead) != NULL, "Error in memory allocation 8")
+    ASSERT((*sumArrayHead) != NULL, "Error in memory allocation\n")
     for (i = 0; i < k ; i++) {
         (*sumArrayHead)[i] = (*sumArray) + i*d;
     }
     (*countArray) = calloc(k, sizeof(int));
-    ASSERT((*countArray) != NULL, "Error in memory allocation 9")
+    ASSERT((*countArray) != NULL, "Error in memory allocation\n")
 }
 
 
@@ -174,7 +174,11 @@ updateCentroidsPerDatap(double ***datapoint, double ***centroid, int **datap_clu
     /* For each point i, we shall calculate euclidean distance from him to each cluster j, and find min, and assign to datap_cluster_assignment */
     int i, j, v, min_cluster, update, currCluster;
     double dist, min_dist, new_value;
+    
+    
     update = 0;
+    
+    
     for (i = 0 ; i < size ; i++){
         min_dist = FLT_MAX, min_cluster = -1;
 
@@ -204,8 +208,7 @@ updateCentroidsPerDatap(double ***datapoint, double ***centroid, int **datap_clu
             (*sumArrayHead)[currCluster][v] += (*datapoint)[i][v];
         }
     }
-
-
+    
 
     /*update the new clusters and initialize to 0*/
     for(j = 0; j < k; j++) { /* each loop for different cluster*/
@@ -216,27 +219,6 @@ updateCentroidsPerDatap(double ***datapoint, double ***centroid, int **datap_clu
         }
         (*countArray)[j] = 0;
     }
-
-    /*for(j = 0; j < k; k++) { // each loop for different cluster
-        for (v = 0; v < d; v++) { // each loop for opponent of the current cluster
-            new_value = 0, counter = 0;
-            for (i = 0; i < size; i++) {
-                if(*datap_cluster_assignment[i] == j){
-                    counter++;
-                    new_value += (*datapoint)[i][v];
-                }
-            }
-            if (counter != 0) { // if its allowed to divide 0/0 so there is no need of this if statement.
-                new_value /= counter;
-            }
-            (*centroid)[j][v] = new_value;
-
-           *//* if(new_value != (*centroid)[j][v]){
-                update = 1; // we did change. question: what if there is no change in any value, but some how we switched point's clusters - is that possible?
-                (*centroid)[j][v] = new_value;
-            }*//*
-        }
-    }*/
 
     return update;
 }
