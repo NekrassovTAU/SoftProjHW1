@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUFFER_SIZE 200
+#define BUFFER_SIZE 1000
 #define INITIAL_ARRAY_SIZE 100
 #define FLT_MAX 3.402823466e+38F
 
@@ -44,9 +44,6 @@ int main(int argc, char *argv[]) {
     if (argc > 2){
         max_iter = atoi(argv[2]);
     }
-
-
-
 
     ASSERT(max_iter > 0 , "max_iter input needs to be positive\n")
     ASSERT(k > 0 , "k input needs to be positive\n")
@@ -210,7 +207,6 @@ updateCentroidsPerDatap(double ***datapoint, double ***centroid, int **datap_clu
             (*sumArrayHead)[currCluster][v] += (*datapoint)[i][v];
         }
     }
-    
 
     /*update the new clusters and initialize to 0*/
     for(j = 0; j < k; j++) { /* each loop for different cluster*/
